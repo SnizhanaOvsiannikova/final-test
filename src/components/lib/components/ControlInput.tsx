@@ -1,8 +1,4 @@
 import React, { useCallback } from 'react';
-import { useAppDispatch } from '@/hooks/storeHooks';
-import { updatePropertyForType, updateSpacingForType } from '@/store/features/StylesSlice';
-import { updateElementStyles } from '@/store/features/ElementsSlice';
-import type { ControlConfig, BoxSide } from '@/types/styles.types';
 import {
   ControlGroup,
   Label,
@@ -12,13 +8,17 @@ import {
   InputGroup,
   QuickInput
 } from '@/styles/control_input.styles';
+import { useAppDispatch } from '@/hooks/storeHooks';
+import { updatePropertyForType, updateSpacingForType } from '@/store/features/StylesSlice';
+import { updateElementStyles } from '@/store/features/ElementsSlice';
+import type { ControlConfig, BoxSide } from '@/types/styles.types';
 
 interface ControlInputProps {
   config: ControlConfig;
   value: any;
   selectedElementId?: string | null;
   elementType: 'SECTION' | 'BUTTON';
-}
+};
 
 const ControlInput = React.memo(({ config, value, selectedElementId, elementType }: ControlInputProps) => {
   const dispatch = useAppDispatch();

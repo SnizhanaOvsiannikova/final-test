@@ -3,11 +3,11 @@ import { useAppSelector } from '@/hooks/storeHooks';
 import ElementRenderer from '@/components/lib/components/ElementRenderer';
 
 const RootSection = () => {
-  const elements = useAppSelector(state => state.elements);
+  const elementsState = useAppSelector(state => state.elementsState);
 
 	return (
 		<Wrap>
-      {Object.values(elements).map((data) => (
+      {Object.values(elementsState).map((data) => (
         <ElementRenderer key={data.id} data={data} />
       ))}
 		</Wrap>

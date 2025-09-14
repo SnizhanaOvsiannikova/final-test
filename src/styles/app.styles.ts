@@ -20,7 +20,7 @@ export const AppContainer = styled.div`
 
 export const Title = styled.h2<TitleProps>`
   color: ${props => props.color || '#000'};
-  font-size: 16px;
+  font-size: 17px;
   margin: 0 0 16px 0;
 `;
 

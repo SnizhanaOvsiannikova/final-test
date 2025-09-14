@@ -12,12 +12,14 @@ import type { Styles }from '@/types/styles.types';
 import { Title } from '@/styles/app.styles';
 import { useAppSelector, useAppDispatch } from '@/hooks/storeHooks';
 import { setSelectedOption } from '@/store/features/DropdownSlice';
-import { addChildToElement } from '@/store/features/ElementsSlice';
-import Dropdown from '@/components/Dropdown';
+import { addElement, addChildToElement, clearAllElements } from '@/store/features/ElementsSlice';
+import { setSelectedElement, clearSelectedElement } from '@/store/features/UISlice';
 import ControlInput from '@/components/lib/components/ControlInput';
 import type { DropdownOption, ElementType } from '@/types/element.types';
 import { createNewElement, isNestingLimitReached, findElementById, getElementDepth, MAX_NESTED_COUNT } from '@/utils/elementUtils';
 import { CONTROL_CONFIGS } from '@/constants/controls.constants';
+import Dropdown from '@/components/Dropdown';
+import OperationButton from '@/components/OperationButton';
 
 const options: DropdownOption[] = [
   { id: 'section-1', value: 'SECTION' },
@@ -29,11 +31,12 @@ const Sidebar = () => {
   const dispatch = useAppDispatch();
 
   const { selectedOption } = useAppSelector(state => state.dropdown);
-  const elementsState = useAppSelector(state => state.elements);
+  const elementsState = useAppSelector(state => state.elementsState);
   const stylesState = useAppSelector(state => state.styles);
   const selectedElementId = useAppSelector(state => state.ui?.selectedElementId);
 
-  const handleSelect = (option: string) => {
+  // Object.keys(elementsState).length ?
+  const handleSelect = (option: string) => {   
     dispatch(setSelectedOption(option));
     
     if (selectedElementId) {
@@ -55,9 +58,13 @@ const Sidebar = () => {
         const newChild = createNewElement(option as ElementType, elementsState, stylesState);
         dispatch(addChildToElement({ parentId: selectedElementId, child: newChild }));
       }
-    }
-  };
+    };
 
+    const newElement = createNewElement(option as ElementType, elementsState, stylesState);
+    dispatch(setSelectedElement(newElement.id));
+    dispatch(addElement(newElement));
+
+  };
 
   const getCurrentStyles = (): Styles => {
     if (selectedElementId) {
@@ -90,6 +97,11 @@ const Sidebar = () => {
     return Object.values(elementsState).some(el => el.type === 'BUTTON') || selectedOption === 'BUTTON';
   };
 
+  const cleanState = () => {
+    dispatch(clearSelectedElement());
+    dispatch(clearAllElements());
+  };
+
   return (
     <SidebarContainer>
       <SidebarHeader>
@@ -106,42 +118,45 @@ const Sidebar = () => {
       </SidebarHeader>
       <div>
         <Dropdown
-          options={options} 
+          options={selectedElementId ? options : [{ id: 'section-1', value: 'SECTION' }]} 
           placeholder='Add new element...'
           onSelect={handleSelect}
           selectedValue={null}
         />
       </div>
-      <TitleContainer>
-        <Title color={`#ffffff`}>
-          CSS Properties
-          {selectedElementId && (
-            <span style={{ fontSize: '12px', opacity: 0.7, display: 'block' }}>
-              (Editing selected element)
-            </span>
-          )}
-        </Title>
-      </TitleContainer>
+      {selectedElementId ? (
+        <>
+          <TitleContainer>
+            <Title color={`#ffffff`}>
+              CSS Properties<span>(Editing selected element)</span>
+            </Title>
+            <OperationButton 
+              onClick={cleanState}
+              buttonText='Clear State'
+            />
+          </TitleContainer>
 
-      {CONTROL_CONFIGS.map((config) => {
-        if (currentElementType === 'SECTION' && HIDDEN_FOR_SECTION.has(config.label)) {
-          return null;
-        };
+          {CONTROL_CONFIGS.map((config) => {
+            if (currentElementType === 'SECTION' && HIDDEN_FOR_SECTION.has(config.label)) {
+              return null;
+            };
 
-        if (config.label === 'Button Text' && !shouldShowButtonFields()) {
-          return null;
-        };
+            if (config.label === 'Button Text' && !shouldShowButtonFields()) {
+              return null;
+            };
 
-        return (
-          <ControlInput
-            key={config.property}
-            config={config}
-            value={currentStyles[config.property]}
-            elementType={currentElementType}
-            selectedElementId={selectedElementId ?? undefined}
-          />
-        );
-      })}
+            return (
+              <ControlInput
+                key={config.property}
+                config={config}
+                value={currentStyles[config.property]}
+                elementType={currentElementType}
+                selectedElementId={selectedElementId ?? undefined}
+              />
+            );
+          })}
+        </>) : null
+      }
     </SidebarContainer>
   );
 };

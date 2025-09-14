@@ -1,6 +1,7 @@
-import type { AppElement } from "@/types/element.types";
 import type { Styles } from "@/types/styles.types";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import type { AppElement } from "@/types/element.types";
+
 
 type State = Record<string, AppElement>;
 
@@ -77,6 +78,9 @@ const elementsSlice = createSlice({
       };
       
       findAndAddChild(state);
+    },
+    clearAllElements: () => {
+      return {};
     }
   }
 });
@@ -84,9 +88,8 @@ const elementsSlice = createSlice({
 export const {
   addElement, 
   updateElementStyles,
-  addChildToElement
+  addChildToElement, 
+  clearAllElements
 } = elementsSlice.actions;
 
 export const ElementsReducer = elementsSlice.reducer;
-
-

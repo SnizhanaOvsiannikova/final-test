@@ -6,7 +6,7 @@ import { UIReducer } from '@/store/features/UISlice';
 
 export const store = configureStore({
   reducer: {
-    elements: ElementsReducer,
+    elementsState: ElementsReducer,
     styles: StylesReducer,
     dropdown: DropdownsReducer,
     ui: UIReducer,

@@ -98,6 +98,13 @@ export const SidebarContent = styled.div`
 
 export const TitleContainer = styled.div`
   padding-top: 20px;
+  display: flex;
+  justify-content: space-between;
   border-top: 1px solid #4A5568;
+  h2 span {
+    font-size: 10px;
+    opacity: 0.7;
+    display: block;
+  }
 `;
 

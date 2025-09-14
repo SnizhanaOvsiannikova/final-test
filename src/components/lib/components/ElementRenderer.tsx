@@ -1,4 +1,5 @@
 import React from 'react';
+import { LevelIndicatorWrap, LevelIndicator } from '@/styles/element_renderer.styles';
 import type { AppElement } from '@/types/element.types';
 import { useAppSelector, useAppDispatch } from '@/hooks/storeHooks';
 import { setSelectedElement } from '@/store/features/UISlice';
@@ -17,7 +18,7 @@ const ElementRenderer = React.memo(({ data, currentLevel = 0, maxLevel = 5 }: El
   const sectionStyles = useAppSelector(state => state.styles.sectionStyles);
   const buttonStyles = useAppSelector(state => state.styles.buttonStyles);
   const selectedElementId = useAppSelector(state => state.ui?.selectedElementId);
-  const elements = useAppSelector(state => state.elements);
+  const elementsState = useAppSelector(state => state.elementsState);
   
   const handleElementClick = (event: React.MouseEvent) => {
     event.stopPropagation();
@@ -25,7 +26,7 @@ const ElementRenderer = React.memo(({ data, currentLevel = 0, maxLevel = 5 }: El
   };
 
   const isSelected = selectedElementId === data.id;
-  const canHaveChildren = data.type === 'SECTION' && isNestingLimitReached(elements, data.id);
+  const canHaveChildren = data.type === 'SECTION' && isNestingLimitReached(elementsState, data.id);
   
   const getElementStyles = () => {
     if (data.type === 'SECTION') {
@@ -67,34 +68,18 @@ const ElementRenderer = React.memo(({ data, currentLevel = 0, maxLevel = 5 }: El
   };
   const isMaxLevel = currentLevel >= maxLevel;
   return (
-    <div 
-      style={{
-        borderRadius: '4px',
-        cursor: 'pointer',
-        margin: `${currentLevel * 2}px`, 
-        transition: 'border-color 0.2s ease',
-        position: 'relative',
-        opacity: canHaveChildren ? 1 : 0.8 // Visual feedback
-      }}
+    <LevelIndicatorWrap
+      $currentLevel={currentLevel}
+      $canHaveChildren={canHaveChildren}
       onClick={handleElementClick}
     >
       {levelIndicator && (
-        <div style={{
-          position: 'absolute',
-          top: '-10px',
-          left: '5px',
-          fontSize: '10px',
-          background: canHaveChildren ? '#007bff' : '#dc3545',
-          color: 'white',
-          padding: '1px 4px',
-          borderRadius: '2px',
-          zIndex: 1000
-        }}>
+        <LevelIndicator $canHaveChildren={canHaveChildren}>
           {levelIndicator} {isMaxLevel && '(MAX)'}
-        </div>
+        </LevelIndicator>
       )}
       {renderSelectedElem()}
-    </div>
+    </LevelIndicatorWrap>
   );
 });
 
