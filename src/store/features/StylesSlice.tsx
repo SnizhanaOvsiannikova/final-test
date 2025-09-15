@@ -1,46 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { 
-  Styles,
-  ButtonStyles,
   Spacing,
   StylesState
 } from '@/types/styles.types';
+import { createSpacing, INITIAL_STYLES } from '@/utils/constants';
 
-const createSpacing = (value: string): Spacing => ({
-  top: value,
-  right: value,
-  bottom: value,
-  left: value
-});
-
-const SectionInitialState: Styles = {
-  width: '500px',
-  height: '300px',
-  display: 'block',
-  position: 'relative',
-  color: '#333333',
-  backgroundColor: '#ffffff',
-  padding: createSpacing('20px'),
-  margin: createSpacing('20px')
-};
-
-const ButtonInitialState: ButtonStyles = {
-  width: '150px',
-  height: '50px',
-  display: 'block',
-  position: 'relative',
-  color: '#333333',
-  backgroundColor: '#ffffff',
-  padding: createSpacing('4px'),
-  margin: createSpacing('4px'),
-  text: 'Button Text'
-};
-
-const initialState: StylesState = {
-  sectionStyles: SectionInitialState,
-  buttonStyles: ButtonInitialState
-};
+const initialState: StylesState = INITIAL_STYLES;
 
 const stylesSlice = createSlice({
   name: 'styles',
@@ -52,7 +18,6 @@ const stylesSlice = createSlice({
       value: any 
     }>) => {
       const { elementType, property, value } = action.payload;
-      console.log("fjhfhfhfhfhfhfhhf")
       if (elementType === 'SECTION') {
         (state.sectionStyles as any)[property] = value;
       } else if (elementType === 'BUTTON') {

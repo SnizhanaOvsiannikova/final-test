@@ -2,15 +2,17 @@
 export type ElementType = 'SECTION' | 'BUTTON';
 import type { Styles }from '@/types/styles.types';
 
+export type ElementsState = Record<string, AppElement>;
+
 export interface AppElement {
   id: string;
   type: ElementType;
   title: string;
   styles?: Styles;
-  children?: Record<string, AppElement> | null;
-  isExpanded?: boolean;
+  children?: ElementsState | null;
   text?: string;
   hasCustomStyles?: boolean;
+  isRoot?: boolean;
 };
   
 export interface ElementProps {
@@ -22,7 +24,7 @@ export interface ElementProps {
 };
   
 export interface ElementListProps {
-  elements: Record<string, AppElement>
+  elements: ElementsState
   maxLevel?: number;
   onToggleExpansion: (elementId: string) => void;
   onAddChild: (parentId: string, type: ElementType) => void;

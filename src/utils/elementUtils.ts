@@ -1,4 +1,4 @@
-import type { AppElement, ElementType } from '@/types/element.types';
+import type { AppElement, ElementsState, ElementType } from '@/types/element.types';
 import type { StylesState } from '@/types/styles.types';
 
 export const MAX_NESTED_COUNT = 5
@@ -7,10 +7,10 @@ export const generateId = (): string => {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 };
 
-const countElementsByType = (elements: Record<string, AppElement>, type: ElementType): number => {
+const countElementsByType = (elements: ElementsState, type: ElementType): number => {
   let count = 0;
   
-  const countInLevel = (items: Record<string, AppElement>) => {
+  const countInLevel = (items: ElementsState) => {
     for (const element of Object.values(items)) {
       if (element.type === type) {
         count++;
@@ -27,8 +27,9 @@ const countElementsByType = (elements: Record<string, AppElement>, type: Element
 
 export const createNewElement = (
   type: ElementType, 
-  existingElements: Record<string, AppElement>, 
-  stylesState: StylesState
+  existingElements: ElementsState , 
+  stylesState: StylesState,
+  isRoot?: boolean,
 ): AppElement => {
   const defaultStyles = type === 'SECTION' 
     ? stylesState.sectionStyles 
@@ -43,21 +44,21 @@ export const createNewElement = (
     type,
     title: elementTitle,
     children: type === 'SECTION' ? {} : undefined,
-    isExpanded: false,
     styles: { ...defaultStyles },
-    hasCustomStyles: false 
+    hasCustomStyles: false,
+    isRoot
   };
 };
 
 export const addChildToElement = (
-  elements: Record<string, AppElement>, 
+  elements: ElementsState, 
   parentId: string, 
   childType: ElementType,
   stylesState: StylesState,
   maxLevel: number = 4
-): Record<string, AppElement> => {
-  const updateElements = (items: Record<string, AppElement>, currentLevel = 0): Record<string, AppElement> => {
-    const result: Record<string, AppElement> = {};
+): ElementsState => {
+  const updateElements = (items: ElementsState, currentLevel = 0): ElementsState => {
+    const result: ElementsState = {};
     
     for (const [key, item] of Object.entries(items)) {
       if (item.id === parentId) {
@@ -76,7 +77,6 @@ export const addChildToElement = (
           type: childType,
           title: childTitle,
           children: childType === 'SECTION' ? {} : undefined,
-          isExpanded: false,
           styles: { ...(childType === 'SECTION' ? stylesState.sectionStyles : stylesState.buttonStyles) }
         };
         
@@ -105,39 +105,7 @@ export const addChildToElement = (
   return updateElements(elements);
 };
 
-export const toggleElementExpansion = (
-  elements: Record<string, AppElement>, 
-  elementId: string
-): Record<string, AppElement> => {
-  const updateElements = (items: Record<string, AppElement>): Record<string, AppElement> => {
-    const result: Record<string, AppElement> = {};
-    
-    for (const [key, item] of Object.entries(items)) {
-      if (item.id === elementId) {
-        result[key] = { ...item, isExpanded: !item.isExpanded };
-      } else {
-        if (item.children) {
-          result[key] = {
-            ...item,
-            children: updateElements(item.children)
-          };
-        } else {
-          result[key] = item;
-        }
-      }
-    }
-    
-    return result;
-  };
-  
-  return updateElements(elements);
-};
-
-export const getElementCountByType = (elements: Record<string, AppElement>, type: ElementType): number => {
-  return countElementsByType(elements, type);
-};
-
-export const findElementById = (elements: Record<string, AppElement>, id: string): AppElement | null => {
+export const findElementById = (elements: ElementsState, id: string): AppElement | null => {
   if (elements[id]) {
     return elements[id];
   }
@@ -152,13 +120,13 @@ export const findElementById = (elements: Record<string, AppElement>, id: string
   return null;
 };
 
-export const getElementDepth = (elements: Record<string, AppElement>, targetId: string): number => {
+export const getElementDepth = (elements: ElementsState, targetId: string): number => {
   
   const element = findElementById(elements, targetId);
   
   if (!element) return -1;
 
-  const findDepth = (items: Record<string, AppElement>, currentDepth: number = 0): number => {
+  const findDepth = (items: ElementsState, currentDepth: number = 0): number => {
     for (const item of Object.values(items)) {
       if (item.id === targetId) {
         return currentDepth;
@@ -175,9 +143,13 @@ export const getElementDepth = (elements: Record<string, AppElement>, targetId: 
   return findDepth(elements);
 };
 
-export const isNestingLimitReached = (elementsState: Record<string, AppElement>, parentId: string): boolean => {
+export const isNestingLimitReached = (elementsState: ElementsState, parentId: string): boolean => {
   const element = findElementById(elementsState, parentId);
   
   if (Object.keys(element?.children || {}).length >= MAX_NESTED_COUNT) return true;
   return false;
 };
+
+export const isRootExists = (elementState: ElementsState) => {
+  return !!Object.values(elementState).find((elem) => elem.isRoot);
+}

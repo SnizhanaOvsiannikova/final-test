@@ -1,13 +1,10 @@
 import type { Styles } from "@/types/styles.types";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { AppElement } from "@/types/element.types";
-
-
-type State = Record<string, AppElement>;
+import type { AppElement, ElementsState } from "@/types/element.types";
 
 const elementsSlice = createSlice({
   name: 'elements',
-  initialState: {} as State,
+  initialState: {} as ElementsState,
   reducers: {
     addElement: (state, action: PayloadAction<AppElement>) => {
       const { payload } = action;
@@ -24,7 +21,7 @@ const elementsSlice = createSlice({
     }>) => {
       const { elementId, styleChanges } = action.payload;
       
-      const findAndUpdate = (items: Record<string, AppElement>): boolean => {
+      const findAndUpdate = (items: ElementsState): boolean => {
         for (const element of Object.values(items)) {
           if (element.id === elementId) {
             const safeChanges = styleChanges as Record<string, any>;
@@ -54,7 +51,7 @@ const elementsSlice = createSlice({
     addChildToElement: (state, action: PayloadAction<{ parentId: string; child: AppElement }>) => {
       const { parentId, child } = action.payload;
       
-      const findAndAddChild = (items: Record<string, AppElement>): boolean => {
+      const findAndAddChild = (items: ElementsState): boolean => {
         for (const id in items) {
           const element = items[id];
 
@@ -79,7 +76,7 @@ const elementsSlice = createSlice({
       
       findAndAddChild(state);
     },
-    clearAllElements: () => {
+    clearState: () => {
       return {};
     }
   }
@@ -89,7 +86,7 @@ export const {
   addElement, 
   updateElementStyles,
   addChildToElement, 
-  clearAllElements
+  clearState
 } = elementsSlice.actions;
 
 export const ElementsReducer = elementsSlice.reducer;

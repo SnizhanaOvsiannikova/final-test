@@ -2,14 +2,14 @@ import {
   StyledSection,
 } from '@/styles/section.styles';
 import type { Styles }from '@/types/styles.types';
-import type { AppElement } from '@/types/element.types';
+import type { ElementsState } from '@/types/element.types';
 import ElementRenderer from '@/components/lib/components/ElementRenderer';
 
 interface SectionProps {
   styles: Styles;
   onClick?: (event: React.MouseEvent) => void;
   isSelected?: boolean;
-  children?: Record<string, AppElement> | null;
+  children?: ElementsState | null;
   currentLevel?: number;
 };
 

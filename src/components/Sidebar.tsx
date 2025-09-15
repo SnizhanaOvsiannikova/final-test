@@ -12,7 +12,7 @@ import type { Styles }from '@/types/styles.types';
 import { Title } from '@/styles/app.styles';
 import { useAppSelector, useAppDispatch } from '@/hooks/storeHooks';
 import { setSelectedOption } from '@/store/features/DropdownSlice';
-import { addElement, addChildToElement, clearAllElements } from '@/store/features/ElementsSlice';
+import { addElement, addChildToElement, clearState } from '@/store/features/ElementsSlice';
 import { setSelectedElement, clearSelectedElement } from '@/store/features/UISlice';
 import ControlInput from '@/components/lib/components/ControlInput';
 import type { DropdownOption, ElementType } from '@/types/element.types';
@@ -20,6 +20,7 @@ import { createNewElement, isNestingLimitReached, findElementById, getElementDep
 import { CONTROL_CONFIGS } from '@/constants/controls.constants';
 import Dropdown from '@/components/Dropdown';
 import OperationButton from '@/components/OperationButton';
+import { INITIAL_STYLES } from '@/utils/constants';
 
 const options: DropdownOption[] = [
   { id: 'section-1', value: 'SECTION' },
@@ -35,7 +36,6 @@ const Sidebar = () => {
   const stylesState = useAppSelector(state => state.styles);
   const selectedElementId = useAppSelector(state => state.ui?.selectedElementId);
 
-  // Object.keys(elementsState).length ?
   const handleSelect = (option: string) => {   
     dispatch(setSelectedOption(option));
     
@@ -50,20 +50,15 @@ const Sidebar = () => {
       if (selectedElement.type === 'SECTION') {
         const depth = getElementDepth(elementsState, selectedElementId);
         
-        if (isNestingLimitReached(elementsState, selectedElementId) && depth >= MAX_NESTED_COUNT) {
+        if (isNestingLimitReached(elementsState, selectedElementId) || depth >= MAX_NESTED_COUNT) {
           alert('Maximum nesting level reached! Cannot add more than 5 levels.');
           return;
         }
         
-        const newChild = createNewElement(option as ElementType, elementsState, stylesState);
+        const newChild = createNewElement(option as ElementType, elementsState, INITIAL_STYLES);
         dispatch(addChildToElement({ parentId: selectedElementId, child: newChild }));
       }
     };
-
-    const newElement = createNewElement(option as ElementType, elementsState, stylesState);
-    dispatch(setSelectedElement(newElement.id));
-    dispatch(addElement(newElement));
-
   };
 
   const getCurrentStyles = (): Styles => {
@@ -99,7 +94,10 @@ const Sidebar = () => {
 
   const cleanState = () => {
     dispatch(clearSelectedElement());
-    dispatch(clearAllElements());
+    dispatch(clearState());
+    const newElement = createNewElement('SECTION', elementsState, INITIAL_STYLES, true);
+    dispatch(addElement(newElement));
+    dispatch(setSelectedElement(newElement.id));
   };
 
   return (
