@@ -86,11 +86,7 @@ const Sidebar = () => {
     return selectedOption as 'SECTION' | 'BUTTON';
   };
 
-  const currentElementType = getCurrentElementType();
-  
-  const shouldShowButtonFields = (): boolean => {
-    return Object.values(elementsState).some(el => el.type === 'BUTTON') || selectedOption === 'BUTTON';
-  };
+  const currentElementType = getCurrentElementType(); 
 
   const cleanState = () => {
     dispatch(clearSelectedElement());
@@ -136,10 +132,6 @@ const Sidebar = () => {
 
           {CONTROL_CONFIGS.map((config) => {
             if (currentElementType === 'SECTION' && HIDDEN_FOR_SECTION.has(config.label)) {
-              return null;
-            };
-
-            if (config.label === 'Button Text' && !shouldShowButtonFields()) {
               return null;
             };
 
